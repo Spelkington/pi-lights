@@ -1,4 +1,5 @@
 from rpi_ws281x import *
+import math
 
 class LightStrip:
     """ 
@@ -48,11 +49,78 @@ class LightStrip:
         # Save the length of the strip internally
         self.length = numPixels
 
+        # Set everything we need for the internals of the light.
+        self.__setup()
+
         # Allocate the memory for the strip.
         self.strip.begin()
 
         return
 
+    def __setup (self):
+
+        self.state = 0
+
+        # Loads the default functions into each of the 3 color channels.
+        self.channelFunctions = [
+                self.__getDefaultNullColorFunction(),
+                self.__getDefaultNullColorFunction(),
+                self.__getDefaultPulseColorFunction()
+        ]
+
+    def setChannelFunction(self, function, channel):
+        
+
+        # Before loading, attempt to run the function with a single
+        # integer input, and then index the output. Throw an exception if
+        # this operation was not possible.
+        try:
+            output = function(10)
+            output[0]
+        except Exception as e:
+            print(e)
+            raise TypeError("Channel function was not accepted. Channel functions must take one integer as a parameter and output an integer array.")
+
+        self.channelFunctions[channel] = function
+
+        return
+
+    def stateStep(self):
+
+        self.state += 1
+
+        # Run each color function and store the resulting array
+        channels = [self.channelFunctions[i](self.state) for i in range(3)]
+        count = min([len(s) for s in channels])
+
+        for i in range(count):
+            color = [channels[c][i] for c in range(3)]
+            self[i] = color
+
+        return
+
+    def __getDefaultNullColorFunction (self):
+        """
+        Creates a null color function with all channel indices set to 0.
+        """
+
+        # Create a new zero-brightness color function
+        def colorFunc(t):
+            return [0 for i in range(len(self))]
+
+        return colorFunc
+        
+    def __getDefaultPulseColorFunction (self):
+        """
+        Creates a default color function where the channel slow-pulses as a sin wave
+        """
+        
+        # Create a new function that will set every value to the value of a sin function
+        def colorFunc(t):
+            value = 16 * math.sin(t / 50) + 8
+            return [value for i in range(len(self))]
+
+        return colorFunc
 
     def __len__ (self):
         """
