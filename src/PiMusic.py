@@ -53,9 +53,6 @@ class PiMusic:
         return
 
     def __analyzeAudio(self, data):
-
-        print(max(data))
-
         pass
 
     def close(self):

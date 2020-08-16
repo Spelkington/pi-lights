@@ -2,7 +2,7 @@ from rpi_ws281x import *
 import math
 from . import config as cfg
 
-class LightStrip:
+class LightStrip():
     """ 
     A convenient wrapper class for the NeoPixel LED strip object. Provides
     additional functionality and the wonderful conveniences of working in 
@@ -12,6 +12,7 @@ class LightStrip:
     date:   August 2020
     email:  spelkington@gmail.com
     """
+
 
     def __init__ (self, numPixels,
                   gpio_pin      = cfg.LED_GPIO_PIN,
@@ -58,22 +59,14 @@ class LightStrip:
 
         return
 
-    def __setup (self):
-        """
-        Sets up the LightStrip with default channel functions for visualization.
-        """
-
-        self.state = 0
-
-        # Loads the default functions into each of the 3 color channels.
-        self.channelFunctions = [
-                self.__getDefaultNullColorFunction(),
-                self.__getDefaultNullColorFunction(),
-                self.__getDefaultPulseColorFunction()
-        ]
 
     def setChannelFunction(self, function, channel):
-        
+        """
+        Sets the channel function for the given channel.
+
+        :param function: A function in the form of func(int) = int[]
+        :channel: A valid channel to load the function into.
+        """
 
         # Before loading, attempt to run the function with a single
         # integer input, and then index the output. Throw an exception if
@@ -89,9 +82,82 @@ class LightStrip:
 
         return
 
-    def stateStep(self):
+    def setPalette(self, palette):
+        """
+        Takes in a 256-length tuple of RGB tuples and sets it as the palette for LightStrip
+        palette steps.
+        """
+
+        if len(palette) != 256 or len(palette[1]) != 3:
+            raise ValueError("Palette was malformed!")
+
+        self.palette = palette
+
+        return
+
+    def setStepMode(self, mode):
+        """
+        Shift the current step mode between RGB and Palette mode.
+        """
+
+        if not mode in [self.MODE_RGB,
+                        self.MODE_PALETTE]:
+            raise ValueError("Mode was not a valid step mode")
+
+        self.__CURRENT_MODE = mode
+
+        return
+
+    def __setup (self):
+        """
+        Sets up the LightStrip with self values and default channel functions for visualization.
+        """
+
+        # Set up enumerations for channel values
+        self.CH_RED   = 0
+        self.CH_GREEN = 1
+        self.CH_BLUE  = 2
+        self.CH_BRIGHTNESS = 3
+        self.CH_PALETTE    = 4
+        self.NUM_CHANNELS  = 5
+        
+        # Set up enumerations for modes
+        self.MODE_RGB = 10
+        self.MODE_PALETTE = 11
+
+        # Begin the strip in RGB mode.
+        self.setStepMode(self.MODE_RGB)
+
+        # Set the state of the strip to 0.
+        self.state = 0
+
+        # Loads the default functions into each of the 3 color channels.
+        self.channelFunctions = [None for _ in range(self.NUM_CHANNELS)]
+
+        # Set the default RGB channel functions to slow-pulsing blue light
+        self.setChannelFunction(self.__getConstantChannelFunction(), self.CH_RED)
+        self.setChannelFunction(self.__getConstantChannelFunction(), self.CH_GREEN)
+        self.setChannelFunction(self.__getPulseChannelFunction(),    self.CH_BLUE)
+
+        # Set the default brightness and pulse channel functions to 
+        self.setChannelFunction(self.__getConstantChannelFunction(), self.CH_BRIGHTNESS)
+        self.setChannelFunction(self.__getPulseChannelFunction(),    self.CH_PALETTE)     
+
+        return
+
+
+    def step(self):
 
         self.state += 1
+        
+        if   self.__CURRENT_MODE == self.MODE_RGB:
+            self.__stepRGB()
+        elif self.__CURRENT_MODE == self.MODE_PALETTE:
+            self.__stepPalette()
+        else:
+            raise ValueError("The current LightStrip mode is invalid!")
+
+    def __stepRGB(self):
 
         # Run each color function and store the resulting array
         channels = [self.channelFunctions[i](self.state) for i in range(3)]
@@ -103,25 +169,39 @@ class LightStrip:
 
         return
 
-    def __getDefaultNullColorFunction (self):
+    def __stepPalette(self):
+
+        values = self.channelFunctions[self.CH_PALETTE](self.state)
+        count = min(len(self), len(values))
+
+        for i in range(count):
+
+            paletteIndex = int(max(0, min(255, values[i])))
+                
+            color = self.palette[paletteIndex]
+            self[i] = color
+
+        return
+
+    def __getConstantChannelFunction (self):
         """
         Creates a null color function with all channel indices set to 0.
         """
 
         # Create a new zero-brightness color function
         def colorFunc(t):
-            return [0 for i in range(len(self))]
+            return [10 for i in range(len(self))]
 
         return colorFunc
         
-    def __getDefaultPulseColorFunction (self):
+    def __getPulseChannelFunction (self):
         """
         Creates a default color function where the channel slow-pulses as a sin wave
         """
         
         # Create a new function that will set every value to the value of a sin function
         def colorFunc(t):
-            value = 16 * math.sin(t / 50) + 8
+            value = 128 * math.sin(t / 50) + 96
             return [value for i in range(len(self))]
 
         return colorFunc
