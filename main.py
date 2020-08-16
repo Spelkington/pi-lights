@@ -1,26 +1,18 @@
-from lib import LightStrip as ls
+from src import LightStrip as ls
+from src import PiMusic as pm
+from src import config as cfg
 import math
 
-strip = ls.LightStrip(900)
-
-def generateSinArrayFunction(a, b, c, d, e):
-
-    def sinFunc(t):
-
-        return [a * math.sin(b * x/5 + c+(t/e)) + d for x in range(len(strip))]
-
-    return sinFunc
+strip = ls.LightStrip(cfg.LED_COUNT)
+audio = pm.PiMusic()
 
 try:
 
-    redSin = generateSinArrayFunction(100, 0.1, 0, 0, 10)
-    greenSin = generateSinArrayFunction(15, 1, 0, 0, -10)
-
-    strip.setChannelFunction(redSin, 0)
-    strip.setChannelFunction(greenSin, 1)
+    audio.printDevices()
 
     while True:
 
+        audio.update()
         strip.stateStep()
         strip.show()
 

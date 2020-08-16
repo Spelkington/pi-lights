@@ -1,5 +1,6 @@
 from rpi_ws281x import *
 import math
+from . import config as cfg
 
 class LightStrip:
     """ 
@@ -13,12 +14,12 @@ class LightStrip:
     """
 
     def __init__ (self, numPixels,
-                  gpio_pin      = 18,
-                  freq_hz       = 800000,
-                  dma           = 10,
-                  brightness    = 255,
-                  invert_logic  = False,
-                  channel       = 0):
+                  gpio_pin      = cfg.LED_GPIO_PIN,
+                  freq_hz       = cfg.LED_FREQ_HZ,
+                  dma           = cfg.LED_DMA,
+                  brightness    = cfg.LED_BRIGHTNESS,
+                  invert_logic  = cfg.LED_INV_LOGIC,
+                  channel       = cfg.LED_CHANNEL):
         """
         Creates a new LightStrip object to represent an LED strip
         attached to the Pi.
@@ -58,6 +59,9 @@ class LightStrip:
         return
 
     def __setup (self):
+        """
+        Sets up the LightStrip with default channel functions for visualization.
+        """
 
         self.state = 0
 

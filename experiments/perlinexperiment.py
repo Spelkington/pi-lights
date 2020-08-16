@@ -55,7 +55,7 @@ if __name__ == '__main__':
     colorPersistence = 0.5
     colorLacunarity = 2.0
 
-    colorWeights = [1, 1, 1]
+    colorWeights = [0.1, 0.7, 1]
 
     print("Generating Perlin Noise Pattern...")
 
