@@ -331,3 +331,7 @@ class LightStrip():
             raise TypeError('Invalid Argument Type: {}'.format(type(key)))
 
         return
+
+    def setBrightness(self, val):
+        self.strip.setBrightness(val)
+        return
