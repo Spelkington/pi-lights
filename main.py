@@ -45,7 +45,7 @@ try:
 
     strip.setStepMode(strip.MODE_PALETTE)
     strip.setPalette(palettes[paletteIndex])
-    strip.setBrightness(32)
+    strip.setBrightness(2)
 
     counter = 0
 
@@ -59,6 +59,7 @@ try:
 
         audio.update()
         strip.step()
+
         strip.show()
 
 except KeyboardInterrupt:
