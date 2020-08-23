@@ -1,6 +1,7 @@
 from rpi_ws281x import *
-import math
 from . import config as cfg
+import ctypes, os
+import math
 
 class LightStrip():
     """ 
@@ -36,6 +37,9 @@ class LightStrip():
         :param channel:      Channel for the LED lights. Defaults to 0.
 
         """
+
+        if os.getuid() != 0:
+            raise Exception("You must run this program as sudo!")
         
         # Instantiate the light strip using the given parameters
         self.strip = Adafruit_NeoPixel(
