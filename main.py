@@ -5,57 +5,25 @@ from src import Palette as pal
 import sys, termios, tty, os, time
 import math
 
-def sinFunction(amp, per, vel, shift, prev=None):
 
-    def sinFunc(x, t):
 
-        result = amp * math.sin(x * per/100 + t * vel/100) + shift
-
-        if prev:
-            return result + prev(x, t)
-        else:
-            return result
-
-    return sinFunc
-
-def sinChannel(sinFunc):
-
-    def channelFunc(t):
-        return [int(sinFunc(x, t)) for x in range(cfg.LED_COUNT)]
-
-    return channelFunc
-
+# Init setup
 strip = ls.LightStrip(cfg.LED_COUNT)
 audio = pm.PiMusic()
 
+study_pal = pal.OCEAN
+fun_pal   = pal.RAINBOW
+
 try:
 
-    sinFunc = sinFunction(75, 10, 5, 64)
-    sinFunc = sinFunction(100, 0.05, -2, 40, sinFunc)
-    sinFunc = sinChannel(sinFunc)
-
-    palettes = (
-            pal.RAINBOW,
-            pal.OCEAN,
-            pal.FOREST,
-    )
-    paletteIndex = 1
-
-    strip.setChannelFunction(sinFunc, strip.CH_PALETTE)
+    strip.setPalette(study_pal)
 
     strip.setStepMode(strip.MODE_PALETTE)
-    strip.setPalette(palettes[paletteIndex])
-    strip.setBrightness(2)
+    strip.setBrightness(1)
 
     counter = 0
 
     while True:
-
-        counter += 1
-        if counter % 1000 == 0:
-            print("Palette changed!")
-            paletteIndex = (paletteIndex + 1) % len(palettes)
-            strip.setPalette(palettes[paletteIndex])
 
         audio.update()
         strip.step()

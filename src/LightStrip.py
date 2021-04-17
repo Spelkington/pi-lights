@@ -83,6 +83,7 @@ class LightStrip():
             raise TypeError("Channel function was not accepted. Channel functions must take one integer as a parameter and output an integer array.")
 
         self.channelFunctions[channel] = function
+        self.state = 0
 
         return
 
@@ -92,7 +93,7 @@ class LightStrip():
         palette steps.
         """
 
-        if len(palette) != 256 or len(palette[1]) != 3:
+        if len(palette) != 1024 or len(palette[1]) != 3:
             raise ValueError("Palette was malformed!")
 
         self.palette = palette
@@ -180,7 +181,7 @@ class LightStrip():
 
         for i in range(count):
 
-            paletteIndex = int(max(0, min(255, values[i])))
+            paletteIndex = int(max(0, min(1023, values[i])))
                 
             color = self.palette[paletteIndex]
             self[i] = color
@@ -337,5 +338,5 @@ class LightStrip():
         return
 
     def setBrightness(self, val):
-        self.strip.setBrightness(val)
+        self.strip.setBrightness(int(val * 100))
         return

@@ -22,12 +22,35 @@ class Pulse:
         # TODO apply the pulse to the array
         pass
         
-    # Paiints the pulse onto the array, using additive blending
+    # Paints the pulse onto the array, using additive blending
     def apply(self, array):
         # TODO apply the pulse to the array
         pass
 
+def Phaser:
+    def __init__(self, rate, palette):
+        self.rate = rate
+        self.palette = palette 
+        self.pulses = []
+
+    def apply(self, array):
+        for pulse in self.pulses:
+            pulse.apply(array)
+
+    def step(self, dt):
+        # TODO start new pulses
+        for pulse in self.pulses:
+            pulse.step(dt)
+        # TODO kill pulses that have gone off the end
+
 try:
+    phaser = Phaser(2, [])
+
+    while True:
+        # TODO: The way we do additive blending assumes the strip is all 0s
+        phaser.step(1/60)
+        phaser.apply(strip)
+        strip.show()
     print(len(strip))
 
 except KeyboardInterrupt:
