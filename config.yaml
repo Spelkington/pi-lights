@@ -1,0 +1,639 @@
+swap-minute: 45
+last-hour: 20
+peak-hour: 14
+check-frames: 1300 # 1 minute recommended: ~1200 frames
+brightness-mult: 1
+brightness-max: 0.15
+study-speed: 1
+break-speed: 3
+
+break-days:
+  - 4 # Friday
+  - 5 # Saturday
+  - 6 # Sunday
+verbose: False
+hotswap: True
+no-change: False
+
+loaded-waveform: fireplace
+
+# Palettes
+study-palettes:
+        - candlelight
+break-palettes: 
+        - candlelight-pink
+
+palettes:
+
+  candlelight-pink:
+    - "black"
+    - 0x110011 # Dark purple
+    - 0x411747 # Plum
+    - 0xB91655 # Magenta - dark
+    - 0xDD3F4E # Coral
+    - 0xDB2879 # Hot Pink
+    - 0xEDA7C1 # Light Pink
+    - 0xEEA187 # Peach
+
+  greyscale:
+    - 0x000000
+    - 0xAAAAAA
+
+  greyscale2:
+    - 0x111111
+    - 0xAAAAAA
+
+  bluescale:
+    - 0x000000
+    - 0x0000FF
+
+  bluescale2:
+    - 0x000011
+    - 0x0000FF
+
+  greenscale:
+    - 0x000000
+    - 0x00FF00
+
+  greenscale2:
+    - 0x001100
+    - 0x00FF00
+
+  candlelight:
+    - 0x010000 # Nearly black
+    - 0x110000 # Dark red
+    - 0x6B2304 # Candle brown
+    - 0xD26F04 # Candlelight orange
+    - 0xEE9911 # Burnt orange
+    - 0xF0B904 # Candletip
+    - 0xFFFCBB # Candlewhite
+
+  rainbow:
+    - "black"
+    - "red"
+    - "orange"
+    - "yellow"
+    - "green"
+    - "blue"
+    - "indigo"
+    - "purple"
+
+  rainbow-fire: # For use with the Fireplace config
+    - "black"
+    - "orange"
+    - "yellow"
+    - "green"
+    - "blue"
+    - "purple"
+
+  rainbow2:
+    - 0x110000
+    - "red"
+    - "orange"
+    - "yellow"
+    - "green"
+    - "blue"
+    - "indigo"
+    - "purple"
+
+  reverse-rainbow2:
+    - 0x110011
+    - "purple"
+    - "indigo"
+    - "blue"
+    - "green"
+    - "yellow"
+    - "orange"
+    - "red"
+
+  double-rainbow:
+    - 0x110000
+    - "red"
+    - "orange"
+    - "yellow"
+    - "green"
+    - "blue"
+    - "indigo"
+    - "purple"
+    - "indigo"
+    - "blue"
+    - "green"
+    - "yellow"
+    - "orange"
+    - "red"
+    - 0x110000
+
+  ocean:
+    - "black"
+    - "purple"
+    - 0x004444
+    - [6,   66,  115]
+    - [118, 182, 196]
+    - [127, 205, 255]
+    - [29,  162, 216]
+    - [222, 243, 246]
+
+  ocean2:
+    - 0x000011
+    - 0x002233
+    - 0x0c3b46
+    - 0x145362
+    - 0x2c7688
+    - 0x4b8896
+    - 0x8eb8c2
+    - 0xadc8c8
+
+  reverse-rainbow:
+    - "black"
+    - "purple"
+    - "indigo"
+    - "blue"
+    - "green"
+    - "yellow"
+    - "orange"
+    - "red"
+
+  cherry:
+    - 0x000000
+    - 0x004400
+    - "green"
+    - 0x481F27
+    - 0x851545
+    - 0xAD4369
+    - 0xC97F8C
+    - 0xDDAAAA
+    
+  burned-forest:
+    - 0x000000 # Black
+    - "orange"
+    - "red"
+    - 0x00FF00 # Just Green
+    - 0x95D63E # Yellow-Green
+    - 0xB9EF63 # Inchworm
+    - 0x406D1E # Dark Moss Green
+
+waveforms:
+
+  heatmap:
+    lo:
+      amp:
+        min: 300
+        max: 300
+
+      period:
+        min: 0.005
+        max: 1
+
+      speed:
+        min: -30
+        max: 30
+
+      center:
+        min: 50
+        max: 600
+
+    mid:
+      amp:
+        min: 100
+        max: 275
+
+      period:
+        min: 250
+        max: 260
+
+      speed:
+        min: 5
+        max: 40
+
+      center:
+        min: -200
+        max: 300
+
+    upper:
+      amp:
+        min: 100
+        max: 275
+
+      period:
+        min: 250
+        max: 260
+
+      speed:
+        min: -40
+        max: -5
+
+      center:
+        min: 0
+        max: 0
+
+    high:
+      amp:
+        min: 25
+        max: 150
+
+      period:
+        min: 0
+        max: 2200
+
+      speed:
+        min: -200
+        max: 200
+
+      center:
+        min: 0
+        max: 0
+
+  wavepool:
+    base:
+      amp:
+        min: 0
+        max: 0
+
+      period:
+        min: 0
+        max: 0
+
+      speed:
+        min: 0
+        max: 0
+
+      center:
+        min: 500
+        max: 500
+
+    large-right:
+      amp:
+        min: 240
+        max: 360
+
+      period:
+        min: 258
+        max: 262
+
+      speed:
+        min: -60
+        max: 60
+
+      center:
+        min: 0
+        max: 0
+
+    large-left:
+      amp:
+        min: 240
+        max: 360
+
+      period:
+        min: 248
+        max: 253
+
+      speed:
+        min: 60
+        max: -60
+
+      center:
+        min: 0
+        max: 0
+
+    mid-right:
+      amp:
+        min: 60
+        max: 120
+
+      period:
+        min: 516
+        max: 520
+
+      speed:
+        min: 120
+        max: -120
+
+      center:
+        min: 0
+        max: 0
+
+    mid-left:
+      amp:
+        min: 60
+        max: 120
+
+      period:
+        min: 500
+        max: 506
+
+      speed:
+        min: 120
+        max: -120
+
+      center:
+        min: 0
+        max: 0
+
+    small-right:
+      amp:
+        min: 30
+        max: 60
+
+      period:
+        min: 1032
+        max: 1040
+
+      speed:
+        min: 240
+        max: -240
+
+      center:
+        min: 0
+        max: 0
+
+    small-left:
+      amp:
+        min: 60
+        max: 120
+
+      period:
+        min: 1000
+        max: 1012
+
+      speed:
+        min: 240
+        max: -240
+
+      center:
+        min: 0
+        max: 0
+
+    stream-right:
+      amp:
+        min: 0
+        max: 100
+
+      period:
+        min: 640
+        max: 640
+
+      speed:
+        min: 100
+        max: 200
+
+      center:
+        min: 0
+        max: 0
+
+    stream-left:
+      amp:
+        min: 0
+        max: 100
+
+      period:
+        min: 640
+        max: 640
+
+      speed:
+        min: -100
+        max: -200
+
+      center:
+        min: 0
+        max: 0
+
+  columns:
+    large-column:
+      amp:
+        min: 200
+        max: 200
+
+      period:
+        min: 255
+        max: 255
+
+      speed:
+        min: 0
+        max: 30
+
+      center:
+        min: 0
+        max: 400
+
+    inv-large-column:
+      amp:
+        min: 200
+        max: 200
+
+      period:
+        min: 255
+        max: 255
+
+      speed:
+        min: -30
+        max: 0
+
+      center:
+        min: 0
+        max: 0
+        
+    shimmer-column:
+      amp:
+        min: 25
+        max: 50
+
+      period:
+        min: 1000
+        max: 1040
+
+      speed:
+        min: -90
+        max: 90
+
+      center:
+        min: 0
+        max: 0
+
+    tight-shimmer-column:
+      amp:
+        min: 50
+        max: 100
+
+      period:
+        min: 2000
+        max: 2080
+
+      speed:
+        min: -240
+        max: 240
+
+      center:
+        min: 0
+        max: 0
+
+    lo:
+      amp:
+        min: 50
+        max: 50
+
+      period:
+        min: 0.005
+        max: 0.1
+
+      speed:
+        min: -30
+        max: 30
+
+      center:
+        min: 25
+        max: 75
+
+  fireplace:
+
+    background:
+      amp:
+        min: 0
+        max: 0
+
+      period:
+        min: 0
+        max: 0
+
+      speed:
+        min: 0
+        max: 0
+
+      center:
+        min: 0
+        max: -50
+
+    base:
+      amp:
+        min: 700
+        max: 500
+
+      period:
+        min: 4.9
+        max: 4.9
+
+      speed:
+        min: 0
+        max: 0
+
+      center:
+        min: 0
+        max: 0
+
+    flareup:
+      amp:
+        min: 10
+        max: 200
+
+      period:
+        min: 0.1
+        max: 0.1
+
+      speed:
+        min: 5
+        max: 30
+
+      center:
+        min: 0
+        max: 0
+
+    flame-right:
+      amp:
+        min: 150
+        max: 160
+
+      period:
+        min: 255
+        max: 255
+
+      speed:
+        min: 20
+        max: 40
+
+      center:
+        min: 0
+        max: 100
+
+    flame-left:
+      amp:
+        min: 150
+        max: 160
+
+      period:
+        min: 255
+        max: 255
+
+      speed:
+        min: -20
+        max: -40
+
+      center:
+        min: 0
+        max: 100
+
+    wick-right:
+      amp:
+        min: 80
+        max: 100
+
+      period:
+        min: 502
+        max: 508
+
+      speed:
+        min: 300
+        max: 350
+
+      center:
+        min: 0
+        max: 100
+
+    wick-left:
+      amp:
+        min: 80
+        max: 100
+
+      period:
+        min: 512
+        max: 518
+
+      speed:
+        min: -300
+        max: -350
+
+      center:
+        min: 0
+        max: 100
+
+    embers-right:
+      amp:
+        min: 100
+        max: 100
+
+      period:
+        min: 980
+        max: 1000
+
+      speed:
+        min: 200
+        max: 200
+
+      center:
+        min: 0
+        max: 100
+
+    embers-left:
+      amp:
+        min: 100
+        max: 100
+
+      period:
+        min: 1040
+        max: 1060
+
+      speed:
+        min: -200
+        max: -200
+
+      center:
+        min: 0
+        max: 100
