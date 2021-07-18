@@ -29,7 +29,7 @@ AUDIO_FRAME_HIST    = 5
 
 # LED Strip Configuration
 
-LED_COUNT       = 1200
+LED_COUNT       = 357
 """ Number of LEDs in the light strip. """
 
 LED_GPIO_PIN    = 18

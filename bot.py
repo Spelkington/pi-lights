@@ -1,227 +1,90 @@
 import sys, os, getopt
 sys.path.insert(0, os.path.abspath('..'))
 
+from LightSphere import LightSphere
+from Palette import Palette
 import math
-import yaml
+import time
 import random as rand
-from src import LightStrip as ls
-from src import Palette as pal
-from src import config as cfg
-from datetime import datetime
-
-def generateSin(amplitude, period, speed, center):
-
-    def sinwave(t):
-
-        return [amplitude * math.sin(x*period / 1000 + t * speed / 1000) + center for x in range(cfg.LED_COUNT)]
-
-    return sinwave
-
-def combineFuncs(funcs):
-
-    def combined(t):
-
-        result = [0 for _ in range(cfg.LED_COUNT)]
-
-        for func in funcs:
-            layer = func(t)
-            result = [result[i] + layer[i] for i in range(cfg.LED_COUNT)]
-
-        return result
-
-    return combined
-
-def createWaveFunction(ranges, speedMult = 1, verbose = False):
-
-    funcs = []
-
-    for key, r in ranges.items():
-
-        kwargs = {
-            "amplitude": rand.random() * (r["amp"]["max"] - r["amp"]["min"]) + r["amp"]["min"],
-            "period":    rand.random() * (r["period"]["max"] - r["period"]["min"]) + r["period"]["min"],
-            "speed":    (rand.random() * (r["speed"]["max"] - r["speed"]["min"]) + r["speed"]["min"]) * speedMult,
-            "center":    rand.random() * (r["center"]["max"] - r["center"]["min"]) + r["center"]["min"],
-        }
-
-        if verbose:
-            print(key.upper())
-            for kwname, kwval in kwargs.items():
-                print("\t", kwname, kwval)
-            print()
-
-        funcs.append(generateSin(**kwargs))
-
-    return combineFuncs(funcs)
-
-def updateParams(strip, CONFIG, hotswap=False):
-
-    if hotswap:
-        with open(r'config.yaml') as file:
-            CONFIG = yaml.load(file, Loader=yaml.FullLoader)
-            print("CONFIG Hot-swapped!")
-
-            for name, colors in CONFIG["palettes"].items():
-                CONFIG["palettes"][name] = pal.generatePalette(colors)
-
-    # Convert all config palettes to real palettes
-    for name, colors in CONFIG["palettes"].items():
-        CONFIG["palettes"][name] = pal.generatePalette(colors)
-
-    # Define study and break palettes
-    studyPals = CONFIG["study-palettes"]
-    breakPals = CONFIG["break-palettes"]
-
-    studyPal = studyPals[rand.randint(0, len(studyPals) - 1)]
-    breakPal = breakPals[rand.randint(0, len(breakPals) - 1)]
-
-    if CONFIG["verbose"] == True:
-        print("Study: ", studyPal)
-        print("Break: ", breakPal)
-
-    if CONFIG["verbose"] == True:
-        print("Study Speed: ", CONFIG["study-speed"])
-        print("Break Speed: ", CONFIG["break-speed"])
-
-    studyPal = CONFIG["palettes"][studyPal]
-    breakPal = CONFIG["palettes"][breakPal]
-
-    now = datetime.now()
-    studyOn = (
-            now.minute < CONFIG["swap-minute"]
-        and now.hour < CONFIG["last-hour"]
-        and not now.day in CONFIG["break-days"]
-        and not CONFIG["no-change"]
-    )
-
-    # Because the timelevel formula has an asymptote at 12,
-    # a conditional is required to close the gap.
-    if now.hour != CONFIG["peak-hour"]:
-        timeLevel = min(1, (8 / (now.hour - CONFIG["peak-hour"])**2))
-    else:
-        timeLevel = 1
-
-    studySpeed = CONFIG["study-speed"] * timeLevel
-    breakSpeed = CONFIG["break-speed"] * timeLevel
-    brightness = min(
-        CONFIG["brightness-max"], 
-        CONFIG["brightness-mult"] * timeLevel
-    )
-
-    strip.setBrightness(brightness)
-    waveform = CONFIG["waveforms"][CONFIG["loaded-waveform"]]
-
-    if studyOn:
-
-        if CONFIG["verbose"] == True:
-            print("Mode: Study")
-
-        strip.setPalette(studyPal)
-        strip.setChannelFunction(createWaveFunction(
-            waveform,
-            speedMult=studySpeed,
-            verbose=CONFIG["verbose"]),
-            channel=4
-        )
-
-    else:
-
-        if CONFIG["verbose"] == True:
-            print("Mode: Break")
-
-        strip.setPalette(breakPal)
-        strip.setChannelFunction(createWaveFunction(
-            waveform,
-            speedMult=breakSpeed,
-            verbose=CONFIG["verbose"]),
-            channel=4
-        )
-
-    return CONFIG
-
-
 
 def main():
 
-    with open(r'config.yaml') as file:
-        CONFIG = yaml.load(file, Loader=yaml.FullLoader)
-
-    # Settings
-    SHORT_ARGS = "vtqr"
-    LONG_ARGS  = ["verbose", "test", "quickchange", "rainbow"]
-
-    # Import arguments
-    try:
-        args, arg_values = getopt.getopt(
-            sys.argv[1:],
-            SHORT_ARGS,
-            LONG_ARGS
-        )
-    except getopt.error as err:
-        # Output error, and return with an error code
-        print (str(err))
-        sys.exit(2)
-
-    # Change settings off of arguments
-    for arg, val in args:
-
-        if arg in ("-v", "--verbose"):
-            print("Verbose mode enabled!")
-            CONFIG["verbose"] = True
-
-        if arg in ("-t", "--test"):
-            print("Hot swap testing enabled!")
-            CONFIG["hotswap"] = True
-
-        elif arg in ("-q", "--quickchange"):
-            print("Quickchange enabled!")
-            CONFIG["check-frames"] = 100
-
-        elif arg in ("-r", "--rainbow"):
-            print("Nochange enabled!")
-            CONFIG["no-change"] = True
-
     # Attempt to instantiate the lightstrip.
-    try:
-        strip = ls.LightStrip(cfg.LED_COUNT)
-    except Exception:
-        print(
-            "An error occurred while setting up the "
-            "light strip. Ensure you're running the "
-            "setup as the superuser."
-        )
+    sphere = LightSphere()
+    sphere.setBrightness(0.4)
 
-    # Initialize strip with default values
-    strip.setStepMode(strip.MODE_PALETTE)
-    strip.setPalette(pal.DEFAULT_PALETTE)
-    strip.setBrightness(0.01)
-
-    config = updateParams(strip, CONFIG, hotswap=True)
+    palette = Palette([
+        0xaa0000, #R
+        0xaa6600, #O
+        0xaaaa00, #Y
+        0x00aa00, #G
+        0x0000aa, #B
+        0xaa00aa, #I
+        0xaa0033, #V
+        0xaa0000, #R
+    ])
 
     # Instantiate the counter.
-    c = 0
+    NUM_SLICES = 32
+    WAVELENGTH_ADJ = 0.2
 
+    TOTAL_SPEED = 0.75
+
+    WAVE_SPEED = 0.7
+    AMPLITUDE_SPEED = 0.001
+
+    LO_COLOR_SPEED = -0.1
+    HI_COLOR_SPEED = -0.25
+
+    MIN_AMPLITUDE = 60
+    MAX_AMPLITUDE = 90
+
+    raw_counter = 0
     try:
+
+        sliceWidth = 360 / NUM_SLICES
+        colorWidth = int(len(palette) / NUM_SLICES)
 
         while True:
 
-            if c % CONFIG["check-frames"] == 0:
-                CONFIG = updateParams(
-                    strip, 
-                    CONFIG, 
-                    hotswap=CONFIG["hotswap"]
+            raw_counter += 1
+            counter = int(raw_counter * TOTAL_SPEED)
+
+            # Set the amplitude for the waveform
+            amplitude = (MAX_AMPLITUDE - MIN_AMPLITUDE) * abs(math.sin(counter * AMPLITUDE_SPEED)) + MIN_AMPLITUDE
+
+            for i in range(NUM_SLICES):
+
+                thetaRange = (
+                    i * sliceWidth,
+                    (i + 1) * sliceWidth
                 )
-                print("Checked!")
 
-            strip.step()
-            strip.show()
+                loPhiRange = (
+                    0,
+                    90 + amplitude * math.sin((i + counter * WAVE_SPEED) * WAVELENGTH_ADJ)
+                )
 
-            # Increment counter
-            c += 1
+                hiPhiRange = (
+                    90 + amplitude * math.sin((i + counter * WAVE_SPEED) * WAVELENGTH_ADJ),
+                    180
+                )
+
+                loColorIndex = int((i + counter * LO_COLOR_SPEED) * colorWidth)
+                hiColorIndex = int((i + counter * HI_COLOR_SPEED) * colorWidth)
+
+                loColor = palette[loColorIndex % len(palette)]
+                hiColor = palette[hiColorIndex % len(palette)]
+
+                sphere[thetaRange:loPhiRange] = loColor
+                sphere[thetaRange:hiPhiRange] = hiColor
+
+            sphere.show()
+            # sphere.clear()
 
     except KeyboardInterrupt:
-        strip.clear()
-        strip.show()
+        sphere.clear()
+        sphere.show()
         print("Stopping...")
 
 # Main entry

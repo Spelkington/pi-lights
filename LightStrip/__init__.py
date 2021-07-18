@@ -15,7 +15,8 @@ class LightStrip():
     """
 
 
-    def __init__ (self, numPixels,
+    def __init__ (self,
+                  num_pixels    = cfg.LED_COUNT,
                   gpio_pin      = cfg.LED_GPIO_PIN,
                   freq_hz       = cfg.LED_FREQ_HZ,
                   dma           = cfg.LED_DMA,
@@ -43,7 +44,7 @@ class LightStrip():
         
         # Instantiate the light strip using the given parameters
         self.strip = Adafruit_NeoPixel(
-                                        numPixels,
+                                        num_pixels,
                                         gpio_pin,
                                         freq_hz,
                                         dma,
@@ -53,67 +54,17 @@ class LightStrip():
                                       )
 
         # Save the length of the strip internally
-        self.length = numPixels
+        self.length = num_pixels
 
         # Set everything we need for the internals of the light.
-        self.__setup()
+        self._setup()
 
         # Allocate the memory for the strip.
         self.strip.begin()
 
         return
 
-
-    def setChannelFunction(self, function, channel):
-        """
-        Sets the channel function for the given channel.
-
-        :param function: A function in the form of func(int) = int[]
-        :channel: A valid channel to load the function into.
-        """
-
-        # Before loading, attempt to run the function with a single
-        # integer input, and then index the output. Throw an exception if
-        # this operation was not possible.
-        try:
-            output = function(10)
-            output[0]
-        except Exception as e:
-            print(e)
-            raise TypeError("Channel function was not accepted. Channel functions must take one integer as a parameter and output an integer array.")
-
-        self.channelFunctions[channel] = function
-        self.state = 0
-
-        return
-
-    def setPalette(self, palette):
-        """
-        Takes in a 256-length tuple of RGB tuples and sets it as the palette for LightStrip
-        palette steps.
-        """
-
-        if len(palette) != 1024 or len(palette[1]) != 3:
-            raise ValueError("Palette was malformed!")
-
-        self.palette = palette
-
-        return
-
-    def setStepMode(self, mode):
-        """
-        Shift the current step mode between RGB and Palette mode.
-        """
-
-        if not mode in [self.MODE_RGB,
-                        self.MODE_PALETTE]:
-            raise ValueError("Mode was not a valid step mode")
-
-        self.__CURRENT_MODE = mode
-
-        return
-
-    def __setup (self):
+    def _setup (self):
         """
         Sets up the LightStrip with self values and default channel functions for visualization.
         """
@@ -122,101 +73,15 @@ class LightStrip():
         self.CH_RED   = 0
         self.CH_GREEN = 1
         self.CH_BLUE  = 2
-        self.CH_BRIGHTNESS = 3
-        self.CH_PALETTE    = 4
-        self.NUM_CHANNELS  = 5
-        
-        # Set up enumerations for modes
-        self.MODE_RGB = 10
-        self.MODE_PALETTE = 11
-
-        # Begin the strip in RGB mode.
-        self.setStepMode(self.MODE_RGB)
-
-        # Set the state of the strip to 0.
-        self.state = 0
-
-        # Loads the default functions into each of the 3 color channels.
-        self.channelFunctions = [None for _ in range(self.NUM_CHANNELS)]
-
-        # Set the default RGB channel functions to slow-pulsing blue light
-        self.setChannelFunction(self.__getConstantChannelFunction(), self.CH_RED)
-        self.setChannelFunction(self.__getConstantChannelFunction(), self.CH_GREEN)
-        self.setChannelFunction(self.__getPulseChannelFunction(),    self.CH_BLUE)
-
-        # Set the default brightness and pulse channel functions to 
-        self.setChannelFunction(self.__getConstantChannelFunction(), self.CH_BRIGHTNESS)
-        self.setChannelFunction(self.__getPulseChannelFunction(),    self.CH_PALETTE)     
+        self.NUM_CHANNELS  = 3
 
         return
-
-
-    def step(self):
-
-        self.state += 1
-        
-        if   self.__CURRENT_MODE == self.MODE_RGB:
-            self.__stepRGB()
-        elif self.__CURRENT_MODE == self.MODE_PALETTE:
-            self.__stepPalette()
-        else:
-            raise ValueError("The current LightStrip mode is invalid!")
-
-    def __stepRGB(self):
-
-        # Run each color function and store the resulting array
-        channels = [self.channelFunctions[i](self.state) for i in range(3)]
-        count = min([len(s) for s in channels])
-
-        for i in range(count):
-            color = [channels[c][i] for c in range(3)]
-            self[i] = color
-
-        return
-
-    def __stepPalette(self):
-
-        values = self.channelFunctions[self.CH_PALETTE](self.state)
-        count = min(len(self), len(values))
-
-        for i in range(count):
-
-            paletteIndex = int(max(0, min(1023, values[i])))
-                
-            color = self.palette[paletteIndex]
-            self[i] = color
-
-        return
-
-    def __getConstantChannelFunction (self):
-        """
-        Creates a null color function with all channel indices set to 0.
-        """
-
-        # Create a new zero-brightness color function
-        def colorFunc(t):
-            return [10 for i in range(len(self))]
-
-        return colorFunc
-        
-    def __getPulseChannelFunction (self):
-        """
-        Creates a default color function where the channel slow-pulses as a sin wave
-        """
-        
-        # Create a new function that will set every value to the value of a sin function
-        def colorFunc(t):
-            value = 128 * math.sin(t / 50) + 96
-            return [value for i in range(len(self))]
-
-        return colorFunc
 
     def __len__ (self):
         """
         Retrieves the length of the LightStrip in pixels.
         """
         return self.length
-
 
     def show (self):
         """
@@ -225,8 +90,7 @@ class LightStrip():
         self.strip.show()
         return
 
-
-    def __getNEOColorTuple(self, color):
+    def _getNEOColorTuple(self, color):
         """
         Converts a NeoPixel Color object (stored as a 32-bit integer) into
         a tuple of RGB values.
@@ -247,7 +111,7 @@ class LightStrip():
         return (r, g, b)
 
 
-    def __Color(self, colorTuple):
+    def _createColor(self, colorTuple):
         """
         Converts an RGB tuple to a NeoPixel color object. Clamps any values outside of [0, 255]
         into range.
@@ -271,7 +135,7 @@ class LightStrip():
 
         :param color:   An (R, G, B) color tuple.
         """
-        color = self.__Color(color)
+        color = self._createColor(color)
         for i in range(len(self)):
             self.strip.setPixelColor(i, color)
 
@@ -300,7 +164,7 @@ class LightStrip():
             return [self[i] for i in range(start, stop, step)]
 
         elif isinstance(key, int):
-            return self.__getNEOColorTuple(self.strip.getPixelColor(key))
+            return self._getNEOColorTuple(self.strip.getPixelColor(key))
 
         elif isinstance(key, tuple):
             raise NotImplementedError('Tuple as index')
@@ -319,7 +183,7 @@ class LightStrip():
         :param color:   an (R, G, B) color value
         """
 
-        color = self.__Color(color)
+        color = self._createColor(color)
 
         if isinstance(key, slice):
             start, stop, step = key.indices(len(self))
@@ -329,8 +193,9 @@ class LightStrip():
         elif isinstance(key, int):
             self.strip.setPixelColor(key, color)
 
-        elif isinstance(key, tuple):
-            raise NotImplementedError('Tuple as index')
+        elif isinstance(key, tuple) or isinstance(key, list):
+            for i in key:
+                self.strip.setPixelColor(i, color)
 
         else:
             raise TypeError('Invalid Argument Type: {}'.format(type(key)))
